@@ -1,0 +1,10 @@
+spring:
+  #  profiles:
+  #    active: dev
+  data:
+    mongodb:
+      port: 27017
+      uri: mongodb://admin:admin@localhost:27017/github_social?authSource=admin
+
+
+github_url: https://api.github.com/users/
