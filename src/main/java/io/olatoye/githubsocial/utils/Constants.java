@@ -5,21 +5,21 @@ import org.springframework.beans.factory.annotation.Value;
 public class Constants {
 
     @Value("${github_url}")
-    private String githubUrl;
+    private static String githubUrl;
 
-    public String getFollowersUrl(String username) {
+    public static String getFollowersUrl(String username) {
         return githubUrl + username + "/followers";
     }
 
-    public String getFollowingUrl(String username) {
+    public static String getFollowingUrl(String username) {
         return githubUrl + username + "/following";
     }
 
-    public String getUserDetailsUrl(String username) {
+    public static String getUserDetailsUrl(String username) {
         return githubUrl + username;
     }
 
-    public String getUserEmailUrl(String username) {
+    public static String getUserEmailUrl(String username) {
         return githubUrl + username + "/public_emails";
     }
 }

@@ -9,8 +9,6 @@
 > Developers can see who they are following and who their followers are. They also see the link to their follower/following GitHub account.
 >
 > Note that this project is for training purposes only, but it can be extended with permissions.
-> 
-> *!!! IMPORTANT !!! NO SECURITY IS ADDED TO THIS PROJECT, BUT GIT TOKEN IS ENCRYPTED AND IT IS DISCARDED AFTER A TIME PERIOD*
 
 ## Install
 1. clone the repository
