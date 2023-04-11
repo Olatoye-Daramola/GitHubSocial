@@ -1,7 +1,7 @@
 package io.olatoye.githubsocial.service.userService;
 
 import io.olatoye.githubsocial.domain.dto.ResponseSchema;
-import io.olatoye.githubsocial.domain.dto.ResponseSchema;
+import io.olatoye.githubsocial.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
@@ -9,10 +9,10 @@ import java.util.concurrent.CompletableFuture;
 @Service
 public class UserServiceImpl implements UserService {
 
-    private final UserService userService;
+    private final UserRepository userRepository;
 
-    public UserServiceImpl(UserService userService) {
-        this.userService = userService;
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     @Override
