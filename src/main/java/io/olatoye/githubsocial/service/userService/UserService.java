@@ -6,8 +6,6 @@ import java.util.concurrent.CompletableFuture;
 
 public interface UserService {
 
-    CompletableFuture<ResponseSchema> pseudoLogin(String githubToken);
-
     CompletableFuture<ResponseSchema> getUserDetails();
 
     CompletableFuture<ResponseSchema> getFollowers();

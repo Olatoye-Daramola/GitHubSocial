@@ -2,23 +2,16 @@ package io.olatoye.githubsocial.service.userService;
 
 import io.olatoye.githubsocial.domain.dto.ResponseSchema;
 import io.olatoye.githubsocial.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.concurrent.CompletableFuture;
 
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-
-    public UserServiceImpl(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
-
-    @Override
-    public CompletableFuture<ResponseSchema> pseudoLogin(String githubToken) {
-        return null;
-    }
 
     @Override
     public CompletableFuture<ResponseSchema> getUserDetails() {

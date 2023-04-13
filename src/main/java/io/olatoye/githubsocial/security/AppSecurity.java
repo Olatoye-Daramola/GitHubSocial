@@ -31,10 +31,10 @@ public class AppSecurity {
         http
                 .csrf()
                 .disable()
-                .requiresChannel().anyRequest().requiresSecure()
-                .and()
+//                .requiresChannel().anyRequest().requiresSecure()
+//                .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/auth/**")
+                .requestMatchers("/api/v1/github_social/auth/**", "/api/v1/github_social/health/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()

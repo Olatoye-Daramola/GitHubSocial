@@ -6,11 +6,19 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
-import static org.springframework.http.HttpStatus.NOT_FOUND;
+import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+
+    @ExceptionHandler({ GithubSocialBadRequestException.class })
+    public ResponseEntity<ResponseSchema> badRequestError(GithubSocialBadRequestException ex) {
+        ResponseSchema response = ResponseSchema.builder()
+                .statusCode(400)
+                .message(ex.getMessage())
+                .build();
+        return new ResponseEntity<>(response, BAD_REQUEST);
+    }
 
     @ExceptionHandler({ GithubSocialInternalServerException.class })
     public ResponseEntity<ResponseSchema> internalServerError(GithubSocialInternalServerException ex) {

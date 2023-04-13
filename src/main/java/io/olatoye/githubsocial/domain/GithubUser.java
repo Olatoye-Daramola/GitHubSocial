@@ -7,6 +7,9 @@ public class GithubUser {
     private String avatar;
     private String profile;
     private String repository;
+    private int numberOfFollowers;
+    private int numberOfFollowing;
+
 
     public GithubUser() {
     }
@@ -57,5 +60,21 @@ public class GithubUser {
 
     public void setRepository(String repository) {
         this.repository = repository;
+    }
+
+    public int getNumberOfFollowers() {
+        return numberOfFollowers;
+    }
+
+    public void setNumberOfFollowers(int numberOfFollowers) {
+        this.numberOfFollowers = numberOfFollowers;
+    }
+
+    public int getNumberOfFollowing() {
+        return numberOfFollowing;
+    }
+
+    public void setNumberOfFollowing(int numberOfFollowing) {
+        this.numberOfFollowing = numberOfFollowing;
     }
 }

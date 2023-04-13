@@ -34,19 +34,12 @@ public class AuthUser implements UserDetails {
     private boolean credentialsNonExpired;
     private Collection<SimpleGrantedAuthority> authorities;
 
+    private String githubToken;
+    private String githubUsername;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Set.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return null;
     }
 
     @Override

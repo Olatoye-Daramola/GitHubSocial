@@ -9,30 +9,9 @@ import java.util.List;
 @Document
 public class User extends GithubUser {
 
-    @MongoId
-    private String id;
-
-    @JsonIgnore
-    private String githubToken;
-
     private List<GithubUser> followers;
     private List<GithubUser> following;
 
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
-
-    public String getGithubToken() {
-        return githubToken;
-    }
-
-    public void setGithubToken(String githubToken) {
-        this.githubToken = githubToken;
-    }
 
     public List<GithubUser> getFollowers() {
         return followers;

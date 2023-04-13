@@ -18,8 +18,4 @@ public class Constants {
     public static String getUserDetailsUrl(String username) {
         return githubUrl + username;
     }
-
-    public static String getUserEmailUrl(String username) {
-        return githubUrl + username + "/public_emails";
-    }
 }
