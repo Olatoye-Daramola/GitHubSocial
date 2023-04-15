@@ -14,20 +14,22 @@ import io.olatoye.githubsocial.security.jwt.JwtService;
 import io.olatoye.githubsocial.utils.Constants;
 import io.olatoye.githubsocial.utils.Utils;
 import lombok.RequiredArgsConstructor;
-import org.json.JSONObject;
-import org.springframework.http.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
 
     private final AuthUserRepository authUserRepository;
@@ -35,8 +37,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final Constants constants;
 
-//    private final Constants constants = new Constants();
 
     @Override
     @Transactional
@@ -45,6 +47,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         try {
             boolean isValidToken = isValidGithubToken(request.getGithubToken(), request.getGithubUsername());
             if (!isValidToken) throw new GithubSocialBadRequestException("GITHUB TOKEN NOT VALID");
+
+            log.info("\nGOT HERE --> REGISTER METHOD\n");
 
             var user = AuthUser.builder()
                     .firstName(request.getFirstName())
@@ -73,6 +77,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .data(token)
                     .build();
         } catch (GithubSocialBadRequestException e) {
+            log.info("\nFAILED TO REGISTER USER BECAUSE: {}\n", Arrays.stream(e.getStackTrace()).toList());
             throw new GithubSocialInternalServerException("\nREGISTRATION FAILED BECAUSE -> \n" + e.getMessage());
         }
     }
@@ -103,28 +108,32 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     // -------------------------------- HELPER METHODS --------------------------------
     private boolean isValidGithubToken(String githubToken, String username) {
         try {
-            ResponseEntity<String> response = Utils.callApi(githubToken, Constants.getUserDetailsUrl.apply(username));
+            log.info("\nGOT HERE --> TOKEN VALIDITY METHOD --> URL: {}\n", constants.getUserDetailsUrl.apply(username));
+            ResponseEntity<String> response = Utils.callApi(githubToken, constants.getUserDetailsUrl.apply(username));
             return !Objects.requireNonNull(response.getBody()).isBlank() || !response.getBody().isEmpty();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode().is4xxClientError())
                 return false;
             throw new GithubSocialInternalServerException(e.getMessage());
         } catch (Exception e) {
+            log.info("\nAPI CALL FAILED BECAUSE: {}\n", Arrays.stream(e.getStackTrace()).toList());
             throw new GithubSocialInternalServerException(e.getMessage());
         }
     }
 
     private void saveUserDetails(String githubToken, String username) {
         try {
-            ResponseEntity<String> response = Utils.callApi(githubToken, Constants.getUserDetailsUrl.apply(username));
+            ResponseEntity<String> response = Utils.callApi(githubToken, constants.getUserDetailsUrl.apply(username));
             String responseBody = Objects.requireNonNull(response.getBody());
             User user = (User) Utils.parseJsonToUser(responseBody);
             user.setGithubToken(passwordEncoder.encode(githubToken));
             userRepository.save(user);
         } catch (HttpClientErrorException e) {
+            log.info("\nFAILED TO SAVE USER BECAUSE: {}\n", Arrays.stream(e.getStackTrace()).toList());
             if (e.getStatusCode().is4xxClientError())
                 throw new GithubSocialInternalServerException(e.getMessage());
         } catch (Exception e) {
+            log.info("\nFAILED TO SAVE USER BECAUSE: {}\n", Arrays.stream(e.getStackTrace()).toList());
             throw new GithubSocialInternalServerException(e.getMessage());
         }
     }

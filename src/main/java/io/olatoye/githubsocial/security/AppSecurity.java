@@ -34,7 +34,7 @@ public class AppSecurity {
 //                .requiresChannel().anyRequest().requiresSecure()
 //                .and()
                 .authorizeHttpRequests()
-                .requestMatchers("/api/v1/github_social/auth/**", "/api/v1/github_social/health/**")
+                .requestMatchers("/api/v1/github-social/auth/**", "/api/v1/github-social/health/**")
                 .permitAll()
                 .anyRequest()
                 .authenticated()
