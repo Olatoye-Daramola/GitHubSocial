@@ -2,6 +2,7 @@ package io.olatoye.githubsocial.service.authService;
 
 import io.olatoye.githubsocial.domain.AuthUser;
 import io.olatoye.githubsocial.domain.User;
+import io.olatoye.githubsocial.domain.dto.ResponseSchema;
 import io.olatoye.githubsocial.domain.dto.auth.AuthenticationRequest;
 import io.olatoye.githubsocial.domain.dto.auth.RegistrationRequest;
 import io.olatoye.githubsocial.exception.GithubSocialBadRequestException;
@@ -11,12 +12,10 @@ import io.olatoye.githubsocial.repository.AuthUserRepository;
 import io.olatoye.githubsocial.repository.UserRepository;
 import io.olatoye.githubsocial.security.jwt.JwtService;
 import io.olatoye.githubsocial.utils.Constants;
+import io.olatoye.githubsocial.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,9 +36,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+//    private final Constants constants = new Constants();
+
     @Override
     @Transactional
-    public String register(RegistrationRequest request) {
+    public ResponseSchema register(RegistrationRequest request) {
 
         try {
             boolean isValidToken = isValidGithubToken(request.getGithubToken(), request.getGithubUsername());
@@ -66,14 +67,18 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 saveUserDetails(request.getGithubToken(), request.getGithubUsername());
             else throw new GithubSocialInternalServerException("Unable to generate token");
 
-            return token;
+            return ResponseSchema.builder()
+                    .statusCode(HttpStatus.OK.value())
+                    .message("success")
+                    .data(token)
+                    .build();
         } catch (GithubSocialBadRequestException e) {
             throw new GithubSocialInternalServerException("\nREGISTRATION FAILED BECAUSE -> \n" + e.getMessage());
         }
     }
 
     @Override
-    public String authenticate(AuthenticationRequest request) {
+    public ResponseSchema authenticate(AuthenticationRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         request.getEmail(),
@@ -83,14 +88,22 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         var user = authUserRepository.findByEmail(request.getEmail())
                 .stream().findFirst()
                 .orElseThrow(() -> new GithubSocialNotFoundException("User not registered"));
-        return jwtService.generateToken(user);
+        String token = jwtService.generateToken(user);
+        if (token.isEmpty() && token.isBlank())
+            throw new GithubSocialInternalServerException("Unable to generate token");
+
+        return ResponseSchema.builder()
+                .statusCode(HttpStatus.OK.value())
+                .message("success")
+                .data(token)
+                .build();
     }
 
 
     // -------------------------------- HELPER METHODS --------------------------------
     private boolean isValidGithubToken(String githubToken, String username) {
         try {
-            ResponseEntity<String> response = callApi(githubToken, username);
+            ResponseEntity<String> response = Utils.callApi(githubToken, Constants.getUserDetailsUrl.apply(username));
             return !Objects.requireNonNull(response.getBody()).isBlank() || !response.getBody().isEmpty();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode().is4xxClientError())
@@ -103,9 +116,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private void saveUserDetails(String githubToken, String username) {
         try {
-            ResponseEntity<String> response = callApi(githubToken, username);
+            ResponseEntity<String> response = Utils.callApi(githubToken, Constants.getUserDetailsUrl.apply(username));
             String responseBody = Objects.requireNonNull(response.getBody());
-            User user = parseJsonToUser(responseBody);
+            User user = (User) Utils.parseJsonToUser(responseBody);
+            user.setGithubToken(passwordEncoder.encode(githubToken));
             userRepository.save(user);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode().is4xxClientError())
@@ -115,30 +129,5 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
-    private ResponseEntity<String> callApi(String githubToken, String username) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("Authorization", "Bearer " + githubToken);
-        HttpEntity<String> entity = new HttpEntity<>(null, headers);
 
-        String baseUrl = Constants.getUserDetailsUrl(username);
-
-        RestTemplate template = new RestTemplate();
-        return template.exchange(baseUrl, HttpMethod.GET, entity, String.class);
-    }
-
-    private User parseJsonToUser(String jsonString) {
-        JSONObject jsonObject = new JSONObject(jsonString);
-
-        User user = new User();
-        user.setGithubUserId(jsonObject.getInt("id"));
-        user.setUsername(jsonObject.getString("login"));
-        user.setEmail(jsonObject.getString("email"));
-        user.setAvatar(jsonObject.getString("avatar_url"));
-        user.setProfile(jsonObject.getString("html_url"));
-        user.setRepository(jsonObject.getString("repos_url"));
-        user.setNumberOfFollowers(jsonObject.getInt("followers"));
-        user.setNumberOfFollowing(jsonObject.getInt("following"));
-
-        return user;
-    }
 }

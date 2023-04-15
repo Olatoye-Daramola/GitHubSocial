@@ -1,5 +1,6 @@
 package io.olatoye.githubsocial.web;
 
+import io.olatoye.githubsocial.domain.dto.ResponseSchema;
 import io.olatoye.githubsocial.domain.dto.auth.AuthenticationRequest;
 import io.olatoye.githubsocial.domain.dto.auth.RegistrationRequest;
 import io.olatoye.githubsocial.service.authService.AuthenticationService;
@@ -15,7 +16,7 @@ import java.net.URI;
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 
 @RestController
-@RequestMapping("api/v1/github_social/auth")
+@RequestMapping("api/v1/github-social/auth")
 public class AuthController {
 
     @Value("${login_page}")
@@ -28,22 +29,14 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<String> registerUser(@RequestBody RegistrationRequest request) {
-        String token = authService.register(request);
-        if (!token.isEmpty() && !token.isBlank())
-            return ResponseEntity
-                .created(URI.create(loginPageUrl))
-                .body(token);
-
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body("TOKEN NOT GENERATED");
+    public ResponseEntity<ResponseSchema> registerUser(@RequestBody RegistrationRequest request) {
+        ResponseSchema response = authService.register(request);
+        return ResponseEntity.created(URI.create(loginPageUrl)).body(response);
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<String> authenticateUser(AuthenticationRequest request) {
-        String token = authService.authenticate(request);
-        if (!token.isEmpty() && !token.isBlank())
-            return ResponseEntity.ok().body(token);
-
-        return ResponseEntity.status(INTERNAL_SERVER_ERROR).body("TOKEN NOT GENERATED");
+    public ResponseEntity<ResponseSchema> authenticateUser(AuthenticationRequest request) {
+        ResponseSchema response = authService.authenticate(request);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 }

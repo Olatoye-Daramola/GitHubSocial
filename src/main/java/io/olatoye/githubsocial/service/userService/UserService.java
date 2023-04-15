@@ -6,7 +6,9 @@ import java.util.concurrent.CompletableFuture;
 
 public interface UserService {
 
-    CompletableFuture<ResponseSchema> getUserDetails();
+    CompletableFuture<ResponseSchema> getAuthUserDetails();
+
+    CompletableFuture<ResponseSchema> getUserDetails(String username);
 
     CompletableFuture<ResponseSchema> getFollowers();
 

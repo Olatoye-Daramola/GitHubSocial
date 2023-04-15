@@ -9,9 +9,21 @@ import java.util.List;
 @Document
 public class User extends GithubUser {
 
+    private String githubToken;
     private List<GithubUser> followers;
     private List<GithubUser> following;
 
+    public User() {
+        super();
+    }
+
+    public String getGithubToken() {
+        return githubToken;
+    }
+
+    public void setGithubToken(String githubToken) {
+        this.githubToken = githubToken;
+    }
 
     public List<GithubUser> getFollowers() {
         return followers;

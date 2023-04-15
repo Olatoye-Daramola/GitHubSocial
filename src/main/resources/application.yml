@@ -7,16 +7,6 @@ spring:
       uri: mongodb://admin:admin@localhost:27017/github_social?authSource=admin
 
 
-#management:
-#  endpoints:
-#    web:
-#      exposure:
-#        include: "*" #<2>
-#  endpoint:
-#    health:
-#      show-details: ALWAYS
-
-
 github_url: https://api.github.com/users/
 jwt_secret_key:  28472B4B6250655367566B5970337336763979244226452948404D635166546A
 jwt_expiry_time: 1000 * 60 * 24
