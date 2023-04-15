@@ -60,11 +60,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                     .password(passwordEncoder.encode(request.getPassword()))
                     .build();
 
-            authUserRepository.findByEmail(request.getEmail())
-                    .ifPresent(foundUser -> {
-                        throw new GithubSocialBadRequestException("This user already exists");
-                    });
-            var savedUser = authUserRepository.save(user);
+            var savedUser = authUserRepository.findByEmail(request.getEmail())
+                    .orElseGet(() -> authUserRepository.save(user));
 
             String token = jwtService.generateToken(savedUser);
             if (!token.isEmpty() && !token.isBlank())
