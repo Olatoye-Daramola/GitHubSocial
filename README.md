@@ -13,7 +13,7 @@
 ## Install
 1. clone the repository
 1. run your application
-2. yeah, it's that straightforward...provided that you have JVM installed on your machine.
+2. yeah, it's that straightforward...provided that you have JDK installed on your machine.
 
 ```sh
 gradlew bootRun
